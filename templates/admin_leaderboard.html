@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Leaderboard - Cryptic Nexus</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<canvas id="matrix-canvas" class="matrix-canvas"></canvas>
+<div class="background-overlay"></div>
+
+<nav class="navbar">
+  <a href="/admin" class="nav-brand">Admin Leaderboard</a>
+  <div class="nav-right">
+    <a href="/admin" class="nav-link">Dashboard</a>
+    <a href="/admin/logs" class="nav-link">Logs</a>
+    <a href="/admin/answers" class="nav-link">Answers</a>
+    <button id="theme-btn" class="theme-toggle"></button>
+    <a href="/admin/logout" class="nav-link text-danger">Logout</a>
+  </div>
+</nav>
+
+<div class="container-wide">
+  <section class="hero-card fade-in">
+    <div class="page-kicker">Results Console</div>
+    <h1 class="page-title">Leaderboard</h1>
+    <p class="page-subtitle">This uses the same live ranking and tie-break logic as the player leaderboard, so the admin can track results directly from the control panel.</p>
+  </section>
+
+  <div class="card fade-in">
+    <div class="card-header">
+      <span class="card-title">Live Standings</span>
+      <span class="mono" style="color:var(--muted);font-size:0.78rem;">auto-refresh / 10s</span>
+    </div>
+    <div class="table-wrap">
+      <table class="lb-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Team</th>
+            <th>Score</th>
+            <th>Last Correct Time</th>
+          </tr>
+        </thead>
+        <tbody id="lb-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

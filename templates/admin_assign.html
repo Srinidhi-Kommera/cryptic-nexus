@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assign Questions - Admin</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<canvas id="matrix-canvas" class="matrix-canvas"></canvas>
+<div class="background-overlay"></div>
+
+<nav class="navbar">
+  <a href="/admin" class="nav-brand">Question Assignment</a>
+  <div class="nav-right">
+    <a href="/admin" class="nav-link">Dashboard</a>
+    <a href="/admin/leaderboard" class="nav-link">Leaderboard</a>
+    <button id="theme-btn" class="theme-toggle"></button>
+  </div>
+</nav>
+
+<div class="container">
+  <section class="hero-card fade-in">
+    <div class="page-kicker">Assignment Layer</div>
+    <h1 class="page-title">{{ team.team_name }}</h1>
+    <p class="page-subtitle">Select exactly which question cards are visible to <strong>{{ team.team_id }}</strong>. The recommendation is 3 Round 1 and 2 Round 2 questions.</p>
+  </section>
+
+  <div class="card fade-in">
+    <form method="POST">
+      <div style="margin-bottom:22px;">
+        <div class="card-header" style="padding-bottom:0;border-bottom:none;margin-bottom:12px;">
+          <span class="card-title">Round 1 / Easy</span>
+        </div>
+        <div class="checkbox-grid">
+          {% for q in all_questions if q.round == 1 %}
+          <label class="checkbox-item">
+            <input type="checkbox" name="question_ids" value="{{ q.id }}" {% if q.id in assigned %}checked{% endif %}>
+            <div>
+              <div class="question-block-title">{{ q.title }}</div>
+              <div class="question-block-copy">{{ q.id }}</div>
+            </div>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div style="margin-bottom:22px;">
+        <div class="card-header" style="padding-bottom:0;border-bottom:none;margin-bottom:12px;">
+          <span class="card-title">Round 2 / Medium</span>
+        </div>
+        <div class="checkbox-grid">
+          {% for q in all_questions if q.round == 2 %}
+          <label class="checkbox-item">
+            <input type="checkbox" name="question_ids" value="{{ q.id }}" {% if q.id in assigned %}checked{% endif %}>
+            <div>
+              <div class="question-block-title">{{ q.title }}</div>
+              <div class="question-block-copy">{{ q.id }}</div>
+            </div>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="flex gap-12" style="flex-wrap:wrap;">
+        <button type="submit" class="btn btn-primary">Save Assignment</button>
+        <a href="/admin" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

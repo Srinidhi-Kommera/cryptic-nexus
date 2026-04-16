@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submission Logs - Admin</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<canvas id="matrix-canvas" class="matrix-canvas"></canvas>
+<div class="background-overlay"></div>
+
+<nav class="navbar">
+  <a href="/admin" class="nav-brand">Submission Logs</a>
+  <div class="nav-right">
+    <a href="/admin" class="nav-link">Dashboard</a>
+    <a href="/admin/leaderboard" class="nav-link">Leaderboard</a>
+    <button id="theme-btn" class="theme-toggle"></button>
+  </div>
+</nav>
+
+<div class="container-wide">
+  <section class="hero-card fade-in">
+    <div class="page-kicker">Audit Stream</div>
+    <h1 class="page-title">Attempt History</h1>
+    <p class="page-subtitle">Monitor all live and historic submissions, filter by team, and quickly spot correct or failed attempts.</p>
+  </section>
+
+  <div class="card fade-in">
+    <div class="card-header">
+      <span class="card-title">Submission Logs</span>
+      <form method="GET" class="flex gap-8 items-center">
+        <select name="team_id" onchange="this.form.submit()" style="width:auto;min-width:180px;">
+          <option value="">All Teams</option>
+          {% for t in teams %}
+          <option value="{{ t.team_id }}" {% if selected_team == t.team_id %}selected{% endif %}>{{ t.team_name }}</option>
+          {% endfor %}
+        </select>
+      </form>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Team</th><th>Question</th><th>Submitted Answer</th><th>Result</th><th>Attempt</th><th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if logs %}
+          {% for log in logs %}
+          <tr class="{% if log.is_correct %}correct-row{% else %}wrong-row{% endif %}">
+            <td>{{ log.team_id }}</td>
+            <td style="color:var(--muted);">{{ log.title }} (R{{ log.round }})</td>
+            <td><code class="answer-pill">{{ log.answer_given }}</code></td>
+            <td>{% if log.is_correct %}<span class="badge badge-green">Correct</span>{% else %}<span class="badge badge-red">Wrong</span>{% endif %}</td>
+            <td style="color:var(--accent);">{{ log.attempt_num }}</td>
+            <td style="color:var(--muted);font-size:0.75rem;">{{ log.submitted_at }}</td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:32px;">No submissions yet.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

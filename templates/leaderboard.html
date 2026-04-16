@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - Cryptic Nexus</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<canvas id="matrix-canvas" class="matrix-canvas"></canvas>
+<div class="background-overlay"></div>
+
+<nav class="navbar">
+    <a href="/dashboard" class="nav-brand">Leaderboard</a>
+    <div class="nav-right">
+        <a href="/dashboard" class="nav-link">Dashboard</a>
+        <button id="theme-btn" class="theme-toggle"></button>
+        <a href="/logout" class="nav-link text-danger">Logout</a>
+    </div>
+</nav>
+
+<div class="container">
+    <section class="hero-card fade-in">
+        <div class="page-kicker">Live Ranking</div>
+        <h1 class="page-title">Scoreboard Stream</h1>
+        <p class="page-subtitle">The leaderboard refreshes automatically every 10 seconds so the standings stay current during the event.</p>
+    </section>
+
+    <div class="card fade-in">
+        <div class="card-header">
+            <span class="card-title">Leaderboard</span>
+            <span class="mono" style="color:var(--muted);font-size:0.78rem;">auto-refresh / 10s</span>
+        </div>
+        <div class="table-wrap">
+            <table class="lb-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Team</th>
+                        <th>Score</th>
+                        <th>Last Correct Time</th>
+                    </tr>
+                </thead>
+                <tbody id="lb-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

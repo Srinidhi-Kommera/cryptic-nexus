@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Round 2 - Cryptic Nexus</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<canvas id="matrix-canvas" class="matrix-canvas"></canvas>
+<div class="background-overlay"></div>
+
+<nav class="navbar">
+    <a href="/dashboard" class="nav-brand">Round 2</a>
+    <div class="nav-right">
+        <span class="nav-team">{{ team.team_name }}</span>
+        <span class="nav-score">Score: <strong id="nav-score">{{ team.score }}</strong></span>
+        <span id="timer" class="timer-display">--:--:--</span>
+        <a href="/dashboard" class="nav-link">Dashboard</a>
+        <a href="/leaderboard" class="nav-link">Leaderboard</a>
+        <button id="theme-btn" class="theme-toggle"></button>
+    </div>
+</nav>
+
+<div class="container">
+    <section class="hero-card fade-in">
+        <div class="hero-grid">
+            <div>
+                <div class="page-kicker">Medium Layer</div>
+                <h1 class="page-title">Round 2</h1>
+                <p class="page-subtitle">The board is live and the stakes are higher here. These questions hit harder, but so do the points.</p>
+            </div>
+            <div class="terminal-card">
+                <span class="terminal-line"><span class="prompt">r2@nexus:$</span> Access status: <span class="ok">GRANTED</span></span>
+                <span class="terminal-line"><span class="prompt">r2@nexus:$</span> Current score: <span class="signal">{{ team.score }}</span></span>
+                <span class="terminal-line"><span class="prompt">r2@nexus:$</span> Precision recommended</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ team.score }}</div>
+            <div class="stat-label">Total Score</div>
+        </div>
+    </div>
+
+    {% for q in questions %}
+    <div class="question-card {% if q.is_solved %}solved{% endif %}" id="q-{{ q.id }}">
+        <div class="q-meta">
+            <span class="badge badge-medium">Medium / {{ q.points }} pts</span>
+            <span class="q-title">{{ q.title }}</span>
+        </div>
+
+        <!-- Steganography image (if present) -->
+        {% if q.image_file %}
+        <div class="stego-image-container">
+            <img src="{{ url_for('static', filename='images/stego/' + q.image_file) }}"
+                 alt="Steganography image for {{ q.title }}"
+                 class="stego-image">
+        </div>
+        {% endif %}
+
+        <div class="q-riddle">{{ q.riddle }}</div>
+
+        {% if q.clues and q.clues|length > 0 %}
+        <div class="clues-section">
+            <button class="clue-toggle" onclick="toggleClues(this, 'clues-{{ q.id }}')">[ show clues ]</button>
+            <div id="clues-{{ q.id }}" class="clues-list">
+                {% for clue in q.clues %}
+                <div class="clue-item">{{ clue.clue_text }}</div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if not q.is_solved %}
+        <form class="answer-form" data-question-id="{{ q.id }}">
+            <input type="text" name="answer" placeholder="Enter answer or flag{...}" autocomplete="off">
+            <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+        </form>
+        <div class="answer-result"></div>
+        {% else %}
+        <div class="answer-result correct">Correct: solved</div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>startTimer({{ remaining | int }});</script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard - Cryptic Nexus</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<canvas id="matrix-canvas" class="matrix-canvas"></canvas>
+<div class="background-overlay"></div>
+
+<nav class="navbar">
+  <a href="/admin" class="nav-brand">Admin Console</a>
+  <div class="nav-right">
+    <span class="badge badge-admin">Admin</span>
+    <a href="/admin/leaderboard" class="nav-link">Leaderboard</a>
+    <a href="/admin/logs" class="nav-link">Logs</a>
+    <a href="/admin/answers" class="nav-link">Answers</a>
+    <button id="theme-btn" class="theme-toggle"></button>
+    <a href="/admin/logout" class="nav-link text-danger">Logout</a>
+  </div>
+</nav>
+
+<div class="container-wide">
+  <section class="hero-card fade-in">
+    <div class="hero-grid">
+      <div>
+        <div class="page-kicker">Control Layer</div>
+        <h1 class="page-title">Admin Dashboard</h1>
+        <p class="page-subtitle">Manage the timer, monitor teams, review the question bank, and keep the event synchronized from a single console.</p>
+      </div>
+      <div class="terminal-card">
+        <span class="terminal-line"><span class="prompt">admin@nexus:$</span> Teams loaded: <span class="ok">{{ teams|length }}</span></span>
+        <span class="terminal-line"><span class="prompt">admin@nexus:$</span> Questions loaded: <span class="signal">{{ questions|length }}</span></span>
+        <span class="terminal-line"><span class="prompt">admin@nexus:$</span> Event state: <span class="signal">{% if cfg.started %}LIVE{% else %}IDLE{% endif %}</span></span>
+      </div>
+    </div>
+  </section>
+
+  <div class="card fade-in">
+    <div class="card-header">
+      <span class="card-title">Event Control</span>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">{% if cfg.started %}LIVE{% else %}IDLE{% endif %}</div>
+        <div class="stat-label">Event Status</div>
+      </div>
+      <div class="stat-card">
+        {% if cfg.started and remaining is not none %}
+        <div id="admin-timer" class="stat-value">--:--:--</div>
+        {% else %}
+        <div class="stat-value">--:--:--</div>
+        {% endif %}
+        <div class="stat-label">Remaining Time</div>
+      </div>
+    </div>
+
+    <div class="route-grid">
+      {% if not cfg.started %}
+      <form method="POST" action="/admin/start" class="route-card">
+        <div class="form-group">
+          <label class="form-label">Duration (minutes)</label>
+          <input class="form-input" type="number" name="duration_minutes" value="60" min="1" max="180">
+        </div>
+        <button type="submit" class="btn btn-primary">Start Event</button>
+      </form>
+      {% else %}
+      <form method="POST" action="/admin/add_time" class="route-card">
+        <div class="form-group">
+          <label class="form-label">Extra Minutes</label>
+          <input class="form-input" type="number" name="extra_minutes" value="5" min="1" max="60">
+        </div>
+        <button type="submit" class="btn btn-warn">Add Time</button>
+      </form>
+      <form method="POST" action="/admin/set_duration" class="route-card">
+        <div class="form-group">
+          <label class="form-label">New Total (minutes)</label>
+          <input class="form-input" type="number" name="duration_minutes" value="{{ (cfg.duration // 60) }}" min="1" max="300">
+        </div>
+        <button type="submit" class="btn btn-outline">Set Duration</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card fade-in">
+    <div class="card-header">
+      <span class="card-title">Team Progress and Assignment</span>
+      <a href="/admin/logs" class="btn btn-outline btn-sm">View Logs</a>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Team</th><th>ID</th><th>Score</th><th>R1 Solved</th><th>R2 Status</th><th>Last Correct Time</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for team in teams %}
+          <tr>
+            <td><strong>{{ team.team_name }}</strong></td>
+            <td><code>{{ team.team_id }}</code></td>
+            <td style="color:var(--accent);">{{ team.score }}</td>
+            <td>{{ team.round1_solved }}</td>
+            <td>{% if team.round2_unlocked %}<span class="badge badge-green">Unlocked</span>{% else %}<span class="badge badge-red">Locked</span>{% endif %}</td>
+            <td style="color:var(--muted);font-size:0.75rem;">{{ team.last_solve_elapsed or '-' }}</td>
+            <td><a href="/admin/assign/{{ team.team_id }}" class="btn btn-primary btn-sm">Assign</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card fade-in">
+    <div class="card-header">
+      <span class="card-title">Question Bank</span>
+    </div>
+    <div class="admin-grid">
+      {% for q in questions %}
+      <div class="question-block">
+        <div class="flex justify-between items-center" style="margin-bottom:8px;">
+          <span class="badge {% if q.round == 1 %}badge-easy{% else %}badge-medium{% endif %}">R{{ q.round }} / {{ q.points }} pts</span>
+          <span class="mono" style="font-size:0.72rem;color:var(--muted);">{{ q.id }}</span>
+        </div>
+        <div class="question-block-title">{{ q.title }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+  {% if cfg.started and remaining is not none %}
+  (function () {
+    let remaining = {{ remaining | int }};
+    const el = document.getElementById("admin-timer");
+    if (!el) return;
+    function tick() {
+      if (remaining <= 0) {
+        el.textContent = "00:00:00";
+        return;
+      }
+      const h = Math.floor(remaining / 3600);
+      const m = Math.floor((remaining % 3600) / 60);
+      const s = remaining % 60;
+      el.textContent = String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+      remaining--;
+    }
+    tick();
+    setInterval(tick, 1000);
+    setInterval(function () {
+      fetch("/api/time").then((r) => r.json()).then((d) => {
+        remaining = d.remaining;
+      });
+    }, 30000);
+  })();
+  {% endif %}
+</script>
+</body>
+</html>

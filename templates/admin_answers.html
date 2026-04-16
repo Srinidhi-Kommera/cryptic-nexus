@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Correct Answers - Admin</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<canvas id="matrix-canvas" class="matrix-canvas"></canvas>
+<div class="background-overlay"></div>
+
+<nav class="navbar">
+  <a href="/admin" class="nav-brand">Answer Archive</a>
+  <div class="nav-right">
+    <a href="/admin" class="nav-link">Dashboard</a>
+    <a href="/admin/leaderboard" class="nav-link">Leaderboard</a>
+    <button id="theme-btn" class="theme-toggle"></button>
+  </div>
+</nav>
+
+<div class="container">
+  <section class="hero-card fade-in">
+    <div class="page-kicker">Restricted View</div>
+    <h1 class="page-title">Correct Answers</h1>
+    <p class="page-subtitle">Internal answer sheet for event operators. Keep this hidden from players until the event is over.</p>
+  </section>
+
+  <div class="alert alert-warn">These are the official correct answers. Do not share this page during active gameplay.</div>
+
+  {% for q in questions %}
+  <div class="card fade-in">
+    <div class="flex justify-between items-center" style="margin-bottom:12px;">
+      <span class="badge {{ 'badge-easy' if q.round == 1 else 'badge-medium' }}">{{ 'Round 1' if q.round == 1 else 'Round 2' }} / {{ q.points }} pts</span>
+      <span class="mono" style="font-size:0.74rem;color:var(--muted);">{{ q.id }}</span>
+    </div>
+    <div class="question-block-title" style="margin-bottom:8px;">{{ q.title }}</div>
+    <div class="q-riddle" style="margin-bottom:14px;">{{ q.riddle }}</div>
+    <div class="route-card" style="border-color:rgba(15,255,255,0.24);">
+      <div class="form-label" style="margin-bottom:6px;">Answer</div>
+      <div class="question-block-title" style="color:var(--accent);">{{ q.answer }}</div>
+      <div class="question-block-copy" style="margin-top:4px;">Also accepts: flag{{ '{' }}{{ q.answer }}{{ '}' }}</div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

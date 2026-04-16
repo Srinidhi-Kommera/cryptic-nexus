@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Cryptic Nexus</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<canvas id="matrix-canvas" class="matrix-canvas"></canvas>
+<div class="background-overlay"></div>
+
+<nav class="navbar">
+    <a href="/dashboard" class="nav-brand">Cryptic Nexus</a>
+    <div class="nav-right">
+        <span class="nav-team">{{ session.team_name }}</span>
+        <span class="nav-score">Score: <strong id="nav-score">{{ team.score }}</strong></span>
+        {% if not time_up %}
+        <span id="timer" class="timer-display">--:--:--</span>
+        {% endif %}
+        <a href="/leaderboard" class="nav-link">Leaderboard</a>
+        <button id="theme-btn" class="theme-toggle"></button>
+        <a href="/logout" class="nav-link text-danger">Logout</a>
+    </div>
+</nav>
+
+<div class="container">
+    <section class="hero-card fade-in">
+        <div class="hero-grid">
+            <div>
+                <div class="page-kicker">Team Console</div>
+                <h1 class="page-title">{{ session.team_name }}</h1>
+                <p class="page-subtitle">Track progress, enter the active rounds, and keep pushing your score up before the timer closes the window.</p>
+                {% if time_up %}
+                <div class="alert alert-error" style="margin-top:16px;">Time is over. Submissions are closed and the game has moved to final scoring.</div>
+                {% endif %}
+            </div>
+            <div class="terminal-card">
+                <span class="terminal-line"><span class="prompt">status@nexus:$</span> Session authenticated</span>
+                <span class="terminal-line"><span class="prompt">status@nexus:$</span> Round 1 solved count: <span class="ok">{{ team.round1_solved }}</span></span>
+                <span class="terminal-line"><span class="prompt">status@nexus:$</span> Round 2 access: <span class="signal">{% if team.round2_unlocked %}UNLOCKED{% else %}LOCKED{% endif %}</span></span>
+            </div>
+        </div>
+    </section>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ team.score }}</div>
+            <div class="stat-label">Total Score</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">35</div>
+            <div class="stat-label">Max Score</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ team.round1_solved }}</div>
+            <div class="stat-label">Round 1 Solved</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{% if team.round2_unlocked %}OPEN{% else %}LOCKED{% endif %}</div>
+            <div class="stat-label">Round 2</div>
+        </div>
+    </div>
+
+    <div class="card fade-in">
+        <div class="card-header">
+            <span class="card-title">Round Access</span>
+        </div>
+        <div class="route-grid">
+            <a href="/round1" class="route-card">
+                <h3>Round 1 / Easy</h3>
+                <p>Three questions, five points each. This is the fastest way to get momentum early.</p>
+            </a>
+            {% if team.round2_unlocked %}
+            <a href="/round2" class="route-card" style="border-color:rgba(255,0,255,0.24);">
+                <h3 style="color:var(--accent-2);">Round 2 / Medium</h3>
+                <p>Two higher-value questions worth ten points each. Push here once the unlock flips.</p>
+            </a>
+            {% else %}
+            <div class="route-card" style="opacity:0.7;">
+                <h3 style="color:var(--danger);">Round 2 / Locked</h3>
+                <p>Solve at least one Round 1 question to unlock the medium-difficulty track.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+  {% if not time_up %}
+  startTimer({{ remaining | int }});
+  {% endif %}
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time's Up - Cryptic Nexus</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<canvas id="matrix-canvas" class="matrix-canvas"></canvas>
+<div class="background-overlay"></div>
+
+<div class="timesup-wrap">
+    <div class="timesup-box fade-in">
+        <div class="page-kicker">Session Closed</div>
+        <h1 class="disp">TIME'S UP</h1>
+        <p>The event has ended and the scoring window is now locked.</p>
+        {% if team %}
+        <p style="color:var(--accent);font-size:1rem;">{{ team.team_name }} / final score: <strong>{{ team.score }}</strong></p>
+        {% endif %}
+        <a href="/leaderboard" class="btn btn-outline">View Final Leaderboard</a>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
