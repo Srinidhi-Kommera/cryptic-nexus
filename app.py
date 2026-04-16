@@ -1,5 +1,4 @@
-from flask import (Flask, render_template, request, redirect,
-                   url_for, session, jsonify)
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from database import (
     init_db, seed_teams, seed_questions,
     verify_team, verify_admin,
@@ -11,9 +10,19 @@ from database import (
     get_remaining_seconds, is_event_over,
 )
 import functools
+import os   # <-- add this if not already there
+
+# Auto‑initialize database if it doesn't exist
+if not os.path.exists("cryptic_nexus.db"):
+    print("Database not found. Creating and seeding...")
+    init_db()
+    seed_teams()
+    seed_questions()
+    print("Database ready.")
 
 app = Flask(__name__)
 app.secret_key = "cn-super-secret-change-me-2024"
+# ... rest of your code
 
 # ─── Decorators ───────────────────────────────────────────────────────────────
 
